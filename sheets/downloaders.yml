@@ -1,0 +1,81 @@
+- op: datasource
+  type: mongodb
+  var: schedules
+  connection: mongo1
+  db: apipulse
+  collection: runs
+  query: '{"companyId":{{companyId}}}'
+  project:
+  - testId
+  - downloaderId
+
+- op: datasource
+  type: mongodb
+  var: tests
+  connection: mongo1
+  db: apipulse
+  collection: tests
+  query: '{}'
+  project:
+  - _id
+  - name
+  - projectId
+
+- op: datasource
+  type: joined
+  var: schedules_tests
+  ds1: schedules
+  ds2: tests
+  joinOn:
+    leftSelector: testId
+    rightSelector: _id
+    operation: '='
+  project:
+  - schedules->downloaderId
+  - tests->_id
+  - tests->name
+  - tests->projectId
+
+- op: datasource
+  type: postgres
+  var: projects
+  connection: postgres1
+  query: 'select id,name from project'
+
+- op: datasource
+  type: joined
+  var: schedules_tests_projects
+  ds1: schedules_tests
+  ds2: projects
+  joinOn:
+    leftSelector: tests->projectId
+    rightSelector: id
+    operation: '='
+
+- op: datasource
+  type: postgres
+  var: downloaders
+  connection: postgres1
+  query: 'select id,name from downloader'
+
+- op: datasource
+  type: joined
+  var: data_downloader
+  ds1: schedules_tests_projects
+  ds2: downloaders
+  joinOn:
+    leftSelector: schedules->downloaderId
+    rightSelector: id
+    operation: '='
+
+- op: datasource
+  type: public
+  var: result
+  ds: data_downloader
+  rename:
+    'Test Id': tests->_id
+    'Test Name': tests->name
+    'Project Id': tests->projectId
+    'Project Name': projects->name
+    'Downloader Id': downloaders->id
+    'Downloader Name': downloaders->name

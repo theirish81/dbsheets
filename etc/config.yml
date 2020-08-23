@@ -1,0 +1,7 @@
+datasources:
+    mongo1:
+        url: mongodb://localhost
+    postgres1:
+        host: '127.0.0.1'
+        database: 'apipulse'
+        user: apipulse

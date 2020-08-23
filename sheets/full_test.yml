@@ -1,0 +1,77 @@
+- op: datasource
+  type: mongodb
+  var: tests
+  connection: mongo1
+  db: apipulse
+  collection: tests
+  query: '{"_id":{"$oid":"{{testId}}"}}'
+  project:
+  - _id
+  - name
+  - unit
+  - input
+
+- op: action
+  type: setVar
+  ds: tests
+  var: unitId
+  first: unit.id
+
+- op: action
+  type: setVar
+  ds: tests
+  var: inputId
+  first: input.id
+
+- op: datasource
+  type: mongodb
+  var: units
+  connection: mongo1
+  db: apipulse
+  collection: units
+  query: '{"_id":{"$oid":"{{unitId}}"}}'
+  project:
+  - _id
+  - text
+
+- op: datasource
+  type: joined
+  var: test_unit
+  ds1: tests
+  ds2: units
+  joinOn:
+    leftSelector: unit.id
+    rightSelector: _id
+    operation: '='
+
+- op: datasource
+  type: mongodb
+  var: inputs
+  connection: mongo1
+  db: apipulse
+  collection: inputs
+  query: '{"_id":{"$oid":"{{inputId}}"}}'
+  project:
+    - _id
+    - text  
+
+- op: datasource
+  type: joined
+  var: test_unit_inputs
+  ds1: test_unit
+  ds2: inputs
+  joinOn:
+    leftSelector: tests->input.id
+    rightSelector: _id
+    operation: '='
+
+- op: datasource
+  type: public
+  var: result
+  ds: test_unit_inputs
+  rename:
+    id: tests->_id
+    name: tests->name
+    unit: units->text
+    input: inputs->text
+    
