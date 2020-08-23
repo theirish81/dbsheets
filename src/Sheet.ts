@@ -70,7 +70,6 @@ export class Sheet {
                     const localParams = Object.assign({},operation)
                     localParams.ds = this.sheetScope.get(operation.ds)
                     opPromise = new SetVarAction(this.varScope).evaluate(localParams)
-                    console.log(this.varScope)
                 }
                 return opPromise.then(_ => {
                     return this.operate(iterator)
