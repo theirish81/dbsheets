@@ -5,6 +5,7 @@ import { JoinedDataSource } from "./datasources/JoinedDataSource"
 import { PublicDataSource } from "./datasources/PublicDataSource"
 import { AbstractAction } from "./actions/AbstractAction"
 import { SetVarAction } from "./actions/SetVarAction"
+import { CommentAction } from "./actions/CommentAction"
 
 export class Sheet {
 
@@ -70,6 +71,14 @@ export class Sheet {
                     const localParams = Object.assign({},operation)
                     localParams.ds = this.sheetScope.get(operation.ds)
                     opPromise = new SetVarAction(this.varScope).evaluate(localParams)
+                }
+                if(operation.type == 'comment') {
+                    const localParams = Object.assign({},operation)
+                    if(localParams.ds){
+                        localParams._ds = localParams.ds
+                        localParams.ds = this.sheetScope.get(operation.ds)
+                    }
+                    opPromise = new CommentAction(this.varScope).evaluate(localParams)
                 }
                 return opPromise.then(_ => {
                     return this.operate(iterator)
