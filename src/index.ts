@@ -1,19 +1,33 @@
 import { readFileSync } from 'fs'
-import yaml from 'yaml'
+import yaml from 'js-yaml'
 import yargs from 'yargs'
 import { Sheet } from './Sheet'
 import { PublicDataSource } from './datasources/PublicDataSource'
+import express from 'express'
 import util from 'util'
+import path from 'path'
+import fs from 'fs'
 const ObjectsToCsv = require('objects-to-csv')
 const asTable = require('as-table')
 
 
 
-const options = yargs.option("i",{describe:"The path to a query sheet", type:"string", demandOption:true})
+const options = yargs.option("i",{describe:"The path to a query sheet", type:"string"})
                     .option("f",{describe:"Select output format [javascript,json,table,csv]",type:"string",default:"javascript"})
                     .option("v",{describe:"A key:value variable",type:"string"})
+                    .option("S",{describe:"Runs the HTTP server"})
                     .version("0.1.0").argv
-doSheet(options.i,options.f, convertVars(options.v))
+
+if(!options.i && !options.S){
+    console.log("Either -i or -S must be present")
+    yargs.showHelp()
+} else {
+    if(options.i)
+        doSheet(options.i,options.f, convertVars(options.v))
+    if(options.S) {
+        runServer()
+    }
+}
 
 function convertVars(data : any) : any {
     if(data == null)
@@ -35,7 +49,8 @@ function convertVar(data : any): Array<string> {
 }
 
 async function doSheet(path : string, format : string, vars : any) {
-    const data = yaml.parse(readFileSync(path).toString())
+    let data : any = yaml.load(readFileSync(path).toString())
+    data = (data instanceof Array) ? data : data.steps
     const sheet = new Sheet(data,vars)
     sheet.process().then(_ => {
         sheet.sheetScope.forEach((datasource,key) => {
@@ -57,6 +72,15 @@ async function doSheet(path : string, format : string, vars : any) {
                 
             }
         })
-    }).catch(e => { console.log('Error',e.message)})
-    
+    }).catch(e => { console.log('Error',e.message)})   
+}
+
+function runServer() {
+    const app = express()
+    console.log(path.join(__dirname,'public'))
+    app.use (express.static (path.join (__dirname, 'public')));
+    app.get("/",(req, res, next) => {
+        res.send(fs.readFileSync ('./public/index.ejs', { encoding: 'UTF-8' }))
+    })
+    app.listen(5000)
 }

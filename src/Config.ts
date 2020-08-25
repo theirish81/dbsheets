@@ -1,4 +1,4 @@
-import yaml from 'yaml'
+import yaml from 'js-yaml'
 import { readFileSync } from 'fs'
 
 export class Config {
@@ -9,7 +9,7 @@ export class Config {
 
     private constructor() {
         const data =  readFileSync('./etc/config.yml').toString()
-        this.datasources = yaml.parse(data).datasources
+        this.datasources = (yaml.load(data) as any).datasources
     }
 
     static getInstance() : Config {
