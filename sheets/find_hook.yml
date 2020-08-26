@@ -1,0 +1,18 @@
+params:
+    - companyId
+    - username
+    - projectName
+steps:
+- op: datasource
+  type: postgres
+  var: hooks
+  connection: postgres1
+  query: >
+        select u.id, u.email, w.identifier, p.name from auser u
+            inner join web_hook3 w on (u.id = w.user_id) 
+            inner join project p on (w.project_id = p.id)
+            where u.email='{{username}}' and p.name='{{projectName}}'
+- op: datasource
+  type: public
+  var: result
+  ds: hooks

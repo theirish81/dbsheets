@@ -1,3 +1,7 @@
+params:
+- companyId
+
+steps:
 - op: datasource
   type: mongodb
   var: schedules

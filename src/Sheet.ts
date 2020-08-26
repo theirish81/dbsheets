@@ -62,8 +62,8 @@ export class Sheet {
                                         this.sheetScope.set(operation.var,it)
                                         return this.operate(iterator)
                                     }).catch(e => {
-                                        console.log('Error',e.message)
                                         datasourceObject.close()
+                                        throw e
                                     })
             case 'action':
                 let opPromise : Promise<AbstractAction>
@@ -85,5 +85,13 @@ export class Sheet {
                 })
         }
         
+    }
+
+    resultsCount() : number {
+        let count = 0
+        for (const v of this.sheetScope.values())
+            if(v instanceof PublicDataSource)
+                count++
+        return count
     }
 }

@@ -7,6 +7,7 @@ import express from 'express'
 import util from 'util'
 import path from 'path'
 import fs from 'fs'
+import bp from 'body-parser'
 const ObjectsToCsv = require('objects-to-csv')
 const asTable = require('as-table')
 
@@ -53,9 +54,11 @@ async function doSheet(path : string, format : string, vars : any) {
     data = (data instanceof Array) ? data : data.steps
     const sheet = new Sheet(data,vars)
     sheet.process().then(_ => {
+        const count = sheet.resultsCount()
         sheet.sheetScope.forEach((datasource,key) => {
             if( datasource instanceof PublicDataSource ){
-                console.log("Datasource : "+key)
+                if( count > 1 )
+                    console.log("Datasource : "+key)
                 switch(format){
                     case 'table':
                         console.log(asTable(datasource.getData()))
@@ -79,8 +82,26 @@ function runServer() {
     const app = express()
     console.log(path.join(__dirname,'public'))
     app.use (express.static (path.join (__dirname, 'public')));
+    app.use(bp.json())
     app.get("/",(req, res, next) => {
         res.send(fs.readFileSync ('./public/index.ejs', { encoding: 'UTF-8' }))
+    })
+    app.post("/execute",(req,res,next) => {
+        let data : any = yaml.load(req.body.sheet)
+        data = (data instanceof Array) ? data : data.steps
+        const sheet = new Sheet(data,req.body.params)
+        sheet.process().then(_ => {
+            const out : Array<any> = []
+            sheet.sheetScope.forEach((datasource,key) => {
+                if( datasource instanceof PublicDataSource ){
+                    out.push({key:key,value:datasource.getData()})
+                }
+            })
+            res.send(out)
+        }).catch(e => {
+            res.statusCode = 500
+            res.send({'error':e.message})
+        })
     })
     app.listen(5000)
 }

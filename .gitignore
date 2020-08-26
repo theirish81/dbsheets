@@ -45,3 +45,6 @@ target
 
 # package-lock
 package-lock.json
+
+# public
+public/build

@@ -1,3 +1,7 @@
+params:
+- testId
+
+steps:
 - op: datasource
   type: mongodb
   var: tests
