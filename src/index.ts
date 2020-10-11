@@ -79,8 +79,10 @@ async function doSheet(path : string, format : string, vars : any) {
 }
 
 function runServer() {
+    process.on('SIGINT', function() {
+        process.exit();
+    });
     const app = express()
-    console.log(path.join(__dirname,'public'))
     app.use (express.static (path.join (__dirname, 'public')));
     app.use(bp.json())
     app.get("/",(req, res, next) => {
@@ -103,5 +105,6 @@ function runServer() {
             res.send({'error':e.message})
         })
     })
+    console.log("Running webserver on port 5000")
     app.listen(5000)
 }

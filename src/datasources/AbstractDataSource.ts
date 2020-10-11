@@ -2,16 +2,36 @@ import { Config } from "../Config"
 import mustache from 'mustache'
 import { Op } from "../Op"
 
+/**
+ * An Abstract data source
+ */
 export abstract class AbstractDataSource extends Op {
 
+    /**
+     * Connection parameters
+     */
     connectionParams : any
 
+    /**
+     * The extracted data, populated once the data source evaluates
+     */
     protected data : Array<any>
 
+    /**
+     * 
+     */
     id : string
 
+    /**
+     * The scope
+     */
     scope : any
 
+    /**
+     * Constructor
+     * @param connectionParams the connection params. Null is an acceptable value
+     * @param scope the scope
+     */
     constructor(connectionParams : any = null, scope : any) {
         super()
         if(typeof(connectionParams)=='string')
@@ -22,14 +42,24 @@ export abstract class AbstractDataSource extends Op {
         this.scope = scope
     }
 
+    /**
+     * Returns the data
+     */
     getData() : Array<any> {
         return this.data
     }
 
-    
-
+    /**
+     * Executes a find, given a certain set of parameters
+     * @param params parameters
+     */
     abstract find(params : any ) : Promise<AbstractDataSource>
 
+    /**
+     * Executes a data projection of a data row
+     * @param row a row
+     * @param projections a list of fields that need to be included in this projection
+     */
     static project(row : any, projections: Array<string> ) : any {
         if(projections == null)
             return row
@@ -38,10 +68,20 @@ export abstract class AbstractDataSource extends Op {
         return item
     }
 
+    /**
+     * Creates an array of FieldComparators given the operation data structure
+     * @param operation the operation data structure
+     */
     static createFilterComparators(operation : any) : Array<FieldComparator> {
         return operation.accept?.map((it : any) => new FieldComparator(it.leftSelector,it.value,it.operation))
     }
 
+    /**
+     * Given a row of data and an array of FieldComparators, it determines whether the row should be included
+     * or not.
+     * @param row the row
+     * @param filters the array of FieldComparators
+     */
     static accept(row : any,filters : Array<FieldComparator>) : any {
         let pass = true
         if(filters != null)
@@ -52,14 +92,26 @@ export abstract class AbstractDataSource extends Op {
         return pass
     }
 
+    /**
+     * Evaluates a template
+     * @param data the template
+     */
     evaluateVar(data : string) : string {
         return AbstractDataSource.evaluateVar(data,this.scope)
     }
 
+    /**
+     * Evaluates a template, given a certain scope
+     * @param data the template
+     * @param scope the scope
+     */
     static evaluateVar(data : string, scope : any) : string {
         return mustache.render(data,scope)
     }
 
+    /**
+     * Closes the data source
+     */
     abstract close() : Promise<void>
 
 }

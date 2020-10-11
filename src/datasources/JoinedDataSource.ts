@@ -1,7 +1,15 @@
 import { AbstractDataSource, JoinOn, FieldComparator } from "./AbstractDataSource";
 
+/**
+ * A data source that joins two data sources together
+ */
 export class JoinedDataSource extends AbstractDataSource {
 
+    /**
+     * The constructor
+     * @param id the ID of the operation
+     * @param scope the scope
+     */
     constructor(id : string, scope : any){
         super(null,scope)
         this.id = id
@@ -20,6 +28,16 @@ export class JoinedDataSource extends AbstractDataSource {
                     })
     }
 
+    /**
+     * Left joins two data sets
+     * @param leftTable the name of the left table
+     * @param left the left data
+     * @param rightTable the name of the right table
+     * @param right the right data
+     * @param joinOn the join conditions
+     * @param filters extra filters to accept/discard rows
+     * @param projections projections to discard the fields that are not necessary
+     */
     static joinData(leftTable : string, left : Array<any>, rightTable : string, right : Array<any>,
                     joinOn : JoinOn, filters : FieldComparator[], projections : Array<string>) : Array<any> {
         const data = new Array<any>()
@@ -41,6 +59,11 @@ export class JoinedDataSource extends AbstractDataSource {
         return data
     }
 
+    /**
+     * Produces a new key given a the name of a table and the key of the field
+     * @param leftTable the name of the left table
+     * @param leftKey the key of the field
+     */
     static key(leftTable : string,leftKey : string) : string{
         let key = leftKey
         if(leftTable)

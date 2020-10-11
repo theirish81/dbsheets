@@ -1,6 +1,8 @@
 import { AbstractAction } from "./AbstractAction";
 import { Op } from "../Op";
-
+/**
+ * Sets a variable
+ */
 export class SetVarAction extends AbstractAction {
 
 

@@ -1,5 +1,8 @@
 import { AbstractAction } from "./AbstractAction";
 import util from 'util'
+/**
+ * Produces a comment in the console
+ */
 export class CommentAction extends AbstractAction {
 
     evaluate(params: any): Promise<AbstractAction> {

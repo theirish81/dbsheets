@@ -1,9 +1,20 @@
 import { Client } from 'pg'
 import { AbstractDataSource } from './AbstractDataSource'
+/**
+ * The PostgreSQL data source
+ */
 export class PostgresDataSource extends AbstractDataSource {
 
+    /**
+     * The PostgreSQL client
+     */
     client : Client
 
+    /**
+     * The constructor
+     * @param connectionParams connection parameters
+     * @param scope the scope
+     */
     constructor(connectionParams : any, scope : any){
         super(connectionParams,scope)
     }

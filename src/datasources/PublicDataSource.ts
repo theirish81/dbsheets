@@ -1,7 +1,14 @@
 import { AbstractDataSource } from "./AbstractDataSource";
 
+/**
+ * A data source that arranges data for publication
+ */
 export class PublicDataSource extends AbstractDataSource {
 
+    /**
+     * The constructor
+     * @param scope the scope
+     */
     constructor(scope : any){
         super(null,scope)
     }
