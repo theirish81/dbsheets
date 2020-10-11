@@ -17,7 +17,7 @@ const options = yargs.option("i",{describe:"The path to a query sheet", type:"st
                     .option("f",{describe:"Select output format [javascript,json,table,csv]",type:"string",default:"javascript"})
                     .option("v",{describe:"A key:value variable",type:"string"})
                     .option("S",{describe:"Runs the HTTP server"})
-                    .version("0.1.0").argv
+                    .version("0.2.1").argv
 
 if(!options.i && !options.S){
     console.log("Either -i or -S must be present")
